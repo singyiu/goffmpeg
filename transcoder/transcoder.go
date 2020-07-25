@@ -25,6 +25,7 @@ type Transcoder struct {
 	mediafile     *models.Mediafile
 	configuration ffmpeg.Configuration
 	whiteListProtocols []string
+	ExtraCommandOptions []string
 }
 
 // SetProcessStderrPipe Set the STDERR pipe
@@ -79,7 +80,7 @@ func (t Transcoder) FFprobeExec() string {
 // GetCommand Build and get command
 func (t Transcoder) GetCommand() []string {
 	media := t.mediafile
-	rcommand := append([]string{"-y", "-analyzeduration 2147483647", "-probesize 2147483647"}, media.ToStrCommand()...)
+	rcommand := append([]string{"-y"}, media.ToStrCommand()...)
 
 	if t.whiteListProtocols != nil {
 		rcommand = append([]string{"-protocol_whitelist", strings.Join(t.whiteListProtocols, ",")}, rcommand...)
@@ -211,6 +212,10 @@ func (t *Transcoder) Initialize(inputPath string, outputPath string) error {
 func (t *Transcoder) Run(progress bool) <-chan error {
 	done := make(chan error)
 	command := t.GetCommand()
+
+	if t.ExtraCommandOptions != nil && len(t.ExtraCommandOptions) > 0 {
+		command = append(t.ExtraCommandOptions, command...)
+	}
 
 	if !progress {
 		command = append([]string{"-nostats", "-loglevel", "0"}, command...)
