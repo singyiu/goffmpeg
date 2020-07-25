@@ -79,7 +79,7 @@ func (t Transcoder) FFprobeExec() string {
 // GetCommand Build and get command
 func (t Transcoder) GetCommand() []string {
 	media := t.mediafile
-	rcommand := append([]string{"-y"}, media.ToStrCommand()...)
+	rcommand := append([]string{"-y", "-analyzeduration 2147483647", "-probesize 2147483647"}, media.ToStrCommand()...)
 
 	if t.whiteListProtocols != nil {
 		rcommand = append([]string{"-protocol_whitelist", strings.Join(t.whiteListProtocols, ",")}, rcommand...)
