@@ -80,7 +80,13 @@ func (t Transcoder) FFprobeExec() string {
 // GetCommand Build and get command
 func (t Transcoder) GetCommand() []string {
 	media := t.mediafile
-	rcommand := append([]string{"-y"}, media.ToStrCommand()...)
+	var rcommand []string
+	if t.ExtraCommandOptions != nil && len(t.ExtraCommandOptions) > 0 {
+		rcommand = append([]string{"-y"}, t.ExtraCommandOptions...)
+		rcommand = append(rcommand, media.ToStrCommand()...)
+	} else {
+		rcommand = append([]string{"-y"}, media.ToStrCommand()...)
+	}
 
 	if t.whiteListProtocols != nil {
 		rcommand = append([]string{"-protocol_whitelist", strings.Join(t.whiteListProtocols, ",")}, rcommand...)
@@ -212,10 +218,6 @@ func (t *Transcoder) Initialize(inputPath string, outputPath string) error {
 func (t *Transcoder) Run(progress bool) <-chan error {
 	done := make(chan error)
 	command := t.GetCommand()
-
-	if t.ExtraCommandOptions != nil && len(t.ExtraCommandOptions) > 0 {
-		command = append(t.ExtraCommandOptions, command...)
-	}
 
 	if !progress {
 		command = append([]string{"-nostats", "-loglevel", "0"}, command...)
