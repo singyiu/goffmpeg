@@ -236,6 +236,7 @@ func (t *Transcoder) Run(progress bool) <-chan error {
 
 	// If the user has requested progress, we send it to them on a Buffer
 	var outb, errb bytes.Buffer
+	proc.Stderr = &errb
 	if progress {
 		proc.Stdout = &outb
 	}
